@@ -36,6 +36,8 @@ function mapPath(path: string): string | null {
 // App
 const app = new Hono();
 
+app.get('/health', (c) => c.text('ok'));
+
 app.get('*', async (c) => {
   let path = c.req.path;
   if (path.length > 1 && path.endsWith('/')) {
@@ -61,6 +63,14 @@ app.get('*', async (c) => {
     const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
     body = await res.text();
     status = res.status;
+    if (status >= 500) {
+      const stale = cache.get(url);
+      if (stale) {
+        return c.text(stale.body, stale.status as any, {
+          'Content-Type': 'text/plain; charset=utf-8',
+        });
+      }
+    }
     setCache(url, body, status);
   } catch (err) {
     const stale = cache.get(url);
