@@ -4,12 +4,14 @@ Tiny proxy that gives pretty URLs to Sentry AI skills hosted on GitHub.
 
 ## URL Mapping
 
-| Pretty URL | Resolves To |
+| Pretty URL | GitHub Raw URL |
 |---|---|
-| `https://skills.sentry.gg/sentry` | `https://raw.githubusercontent.com/getsentry/sentry-for-ai/refs/heads/main/sentry.md` |
-| `https://skills.sentry.gg/sentry/issues` | `https://raw.githubusercontent.com/getsentry/sentry-for-ai/refs/heads/main/sentry/issues.md` |
+| `skills.sentry.gg/` | `.../main/SKILL_TREE.md` |
+| `skills.sentry.gg/SKILL_TREE.md` | `.../main/SKILL_TREE.md` |
+| `skills.sentry.gg/sentry-nextjs-sdk/SKILL.md` | `.../main/skills/sentry-nextjs-sdk/SKILL.md` |
+| `skills.sentry.gg/sentry-nextjs-sdk/references/tracing.md` | `.../main/skills/sentry-nextjs-sdk/references/tracing.md` |
 
-Any path under `skills.sentry.gg` maps to the corresponding `.md` file under the repo root.
+Root (`/`) serves the skill tree. All other paths map to `skills/<path>` in [`getsentry/sentry-for-ai`](https://github.com/getsentry/sentry-for-ai).
 
 ## Run Locally
 
