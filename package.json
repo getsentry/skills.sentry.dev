@@ -6,7 +6,12 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.11",
@@ -14,6 +19,8 @@
   },
   "devDependencies": {
     "@types/node": "^25.3.5",
+    "oxfmt": "^0.36.0",
+    "oxlint": "^1.51.0",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }
