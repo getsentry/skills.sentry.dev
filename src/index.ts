@@ -26,9 +26,15 @@ async function proxyText(c: Context, url: string): Promise<Response> {
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
     const body = await res.text();
-    return c.text(body, res.status as ContentfulStatusCode, {
+    const headers: Record<string, string> = {
       "Content-Type": "text/plain; charset=utf-8",
-    });
+    };
+    if (res.ok) {
+      headers["Vercel-CDN-Cache-Control"] =
+        "s-maxage=60, stale-while-revalidate=3600, stale-if-error=86400";
+      headers["Cache-Control"] = "public, max-age=0, must-revalidate";
+    }
+    return c.text(body, res.status as ContentfulStatusCode, headers);
   } catch {
     return c.text("Bad Gateway", 502);
   }
