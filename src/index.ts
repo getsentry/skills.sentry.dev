@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import type { Context } from "hono";
 import { serve } from "@hono/node-server";
+import { trimTrailingSlash } from "hono/trailing-slash";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 
 const BASE = "https://raw.githubusercontent.com/getsentry/sentry-for-ai/refs/heads/main";
@@ -35,6 +36,7 @@ async function proxyText(c: Context, url: string): Promise<Response> {
 
 // App
 const app = new Hono();
+app.use(trimTrailingSlash({ alwaysRedirect: true }));
 
 app.get("/", (c) => proxyText(c, `${BASE}/SKILL_TREE.md`));
 app.get("/sdks", (c) => proxyText(c, `${BASE}/skills/sentry-sdk-setup/SKILL.md`));
