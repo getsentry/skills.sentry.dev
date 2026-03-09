@@ -37,7 +37,6 @@ async function proxyText(c: Context, url: string): Promise<Response> {
 const app = new Hono();
 
 app.get("/", (c) => proxyText(c, `${BASE}/SKILL_TREE.md`));
-app.get("/SKILL_TREE.md", (c) => proxyText(c, `${BASE}/SKILL_TREE.md`));
 app.get("/sdks", (c) => proxyText(c, `${BASE}/skills/sentry-sdk-setup/SKILL.md`));
 app.get("/workflows", (c) => proxyText(c, `${BASE}/skills/sentry-workflow/SKILL.md`));
 app.get("/features", (c) => proxyText(c, `${BASE}/skills/sentry-feature-setup/SKILL.md`));
@@ -49,14 +48,6 @@ app.get("/skills/*", (c) => {
   const url = new URL(c.req.url);
   const canonicalPath = c.req.path.slice("/skills".length) || "/";
   return c.redirect(`${canonicalPath}${url.search}`, 301);
-});
-
-app.get("/:skill/SKILL.md", (c) => {
-  const url = buildSkillUrl(c.req.path);
-  if (!url) {
-    return c.text("Bad Request", 400);
-  }
-  return proxyText(c, url);
 });
 
 app.get("/:skill/*", (c) => {
