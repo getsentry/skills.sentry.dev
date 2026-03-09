@@ -54,7 +54,3 @@ docker run -p 3000:3000 skills-sentry-dev
 | Variable | Default | Description       |
 | -------- | ------- | ----------------- |
 | `PORT`   | `3000`  | Port to listen on |
-
-## Behavior
-
-Each request is proxied directly to the upstream GitHub raw URL with no in-memory caching.
