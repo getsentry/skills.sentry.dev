@@ -1,4 +1,4 @@
-import { sentry } from "@sentry/hono/cloudflare";
+import { sentry } from "@sentry/hono/vercel";
 import { Hono } from "hono";
 import type { Context } from "hono";
 import { serve } from "@hono/node-server";
