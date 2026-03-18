@@ -1,4 +1,4 @@
-import { sentry } from "@sentry/hono/vercel";
+import { sentry } from "@sentry/hono/node";
 import { Hono } from "hono";
 import type { Context } from "hono";
 import { serve } from "@hono/node-server";
