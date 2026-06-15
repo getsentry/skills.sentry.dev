@@ -46,11 +46,13 @@ async function proxyText(c: Context, url: string): Promise<Response> {
 const app = new Hono({
   getPath: (request) => getPath(request).replace(/\/+/g, "/"),
 });
-app.use(sentry(app, {
-  dsn: process.env.SENTRY_DSN,
-  sendDefaultPii: true,
-  tracesSampleRate: 1.0,
-}));
+app.use(
+  sentry(app, {
+    dsn: process.env.SENTRY_DSN,
+    sendDefaultPii: true,
+    tracesSampleRate: 1.0,
+  }),
+);
 
 app.use(trimTrailingSlash({ alwaysRedirect: true }));
 app.get("/", (c) => proxyText(c, `${BASE}/SKILL_TREE.md`));
