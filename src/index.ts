@@ -45,6 +45,7 @@ async function proxyText(c: Context, url: string): Promise<Response> {
 const app = new Hono({
   getPath: (request) => getPath(request).replace(/\/+/g, "/"),
 });
+
 app.use(sentry(app));
 
 app.use(trimTrailingSlash({ alwaysRedirect: true }));
