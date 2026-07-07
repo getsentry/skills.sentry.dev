@@ -140,6 +140,15 @@ app.get("/features", (c) =>
     notePath: "/sentry-feature-setup/SKILL.md",
   }),
 );
+// Skills link to the index with `../../SKILL_TREE.md`, which is right for the
+// bundled layout (skills live under skills/) but resolves to /SKILL_TREE.md here,
+// where the proxy flattens that prefix and serves the index at /. Redirect it to
+// the canonical index so those breadcrumbs resolve.
+app.get("/SKILL_TREE.md", (c) => {
+  const url = new URL(c.req.url);
+  return c.redirect(`/${url.search}`, 301);
+});
+
 app.get("/skills", (c) => {
   const url = new URL(c.req.url);
   return c.redirect(`/${url.search}`, 301);
