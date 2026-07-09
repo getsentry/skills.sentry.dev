@@ -105,7 +105,10 @@ async function proxyText(c: Context, url: string, opts: ProxyOptions = {}): Prom
       try {
         const fallback = await fetch(opts.fallbackUrl, { signal: AbortSignal.timeout(5000) });
         if (fallback.ok) {
+          await res.body?.cancel(); // release the discarded non-ok response's socket
           res = fallback;
+        } else {
+          await fallback.body?.cancel(); // release the discarded failed fallback
         }
       } catch {
         // Keep the primary response.
