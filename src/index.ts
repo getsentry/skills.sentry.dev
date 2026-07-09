@@ -89,12 +89,28 @@ interface ProxyOptions {
   // guidance). When a preamble is supplied the generic note is omitted, since
   // the preamble already explains how to navigate.
   preamble?: string;
+  // Upstream URL to serve instead when the primary fetch misses. Used for the
+  // references-library fallback (see the `/:skill/*` handler); fetched only when
+  // the primary response is not ok, and only used if it itself succeeds.
+  fallbackUrl?: string;
 }
 
 // Proxy a raw markdown file, optionally decorating it for HTTP readers.
 async function proxyText(c: Context, url: string, opts: ProxyOptions = {}): Promise<Response> {
   try {
-    const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+    let res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+    if (!res.ok && opts.fallbackUrl !== undefined) {
+      // A failing fallback fetch must not discard the primary response (turning,
+      // say, a received 404 into a 502), so swallow its errors and keep the primary.
+      try {
+        const fallback = await fetch(opts.fallbackUrl, { signal: AbortSignal.timeout(5000) });
+        if (fallback.ok) {
+          res = fallback;
+        }
+      } catch {
+        // Keep the primary response.
+      }
+    }
     let body = await res.text();
     const headers: Record<string, string> = {
       "Content-Type": "text/plain; charset=utf-8",
@@ -168,7 +184,33 @@ app.get("/:skill/*", (c) => {
   // The request path is already this document's canonical path. Only markdown
   // carries relative links worth annotating; leave other assets untouched.
   const notePath = c.req.path.endsWith(".md") ? c.req.path : undefined;
-  return proxyText(c, url, { notePath });
+
+  // References-library fallback.
+  //
+  // Skills don't own most of their reference docs. Those live in one shared
+  // library at the repo root (`references/`), and each skill declares which it
+  // needs in a `references.yml` manifest. The plugin builds (plugin-claude,
+  // plugin-cursor, plugin-codex, …) run a hydrate step that reads that manifest
+  // and copies the declared references INTO each skill, so every shipped skill
+  // is self-contained. Their SKILL.md files therefore link references with
+  // skill-relative paths like `references/tracing.md`, expecting the file to sit
+  // right beside them.
+  //
+  // This proxy serves the *un-built* sources straight from GitHub, so that copy
+  // never happened — `skills/<skill>/references/<x>` usually doesn't exist. To
+  // make those same relative links resolve over HTTP, a request for
+  // `/<skill>/references/<rest>` that misses in the skill is retried against the
+  // shared library at `${BASE}/references/<rest>` (repo root, no `skills/`
+  // prefix). Because the rewrite only swaps that prefix, links inside the shared
+  // docs (which are relative to the library root) keep resolving under the same
+  // `/<skill>/references/…` namespace and hit this same fallback.
+  //
+  // A skill may still bundle its own references, so we try the skill-local path
+  // first and only fall back to the shared library.
+  const ref = c.req.path.match(/^\/[^/]+\/(references\/.+)$/);
+  const fallbackUrl = ref ? `${BASE}/${ref[1]}` : undefined;
+
+  return proxyText(c, url, { notePath, fallbackUrl });
 });
 
 const port = Number(process.env.PORT) || 3000;
