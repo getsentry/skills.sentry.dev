@@ -25,7 +25,8 @@ function navNote(notePath: string): string {
   return [
     "",
     "",
-    "<!-- Navigation hint added by skills.sentry.dev; not part of the source file. -->",
+    "---",
+    "",
     "> [!NOTE]",
     `> You fetched this over HTTP from \`${canonicalUrl}\`. The links in it are relative`,
     "> paths to other skill files. To follow one, resolve it against this document's URL",
