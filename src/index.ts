@@ -17,7 +17,7 @@ const ORIGIN = "https://skills.sentry.dev";
 // lives ONLY here so the curl instruction never leaks back into the sources.
 //
 // `notePath` is the document's own canonical path on this origin. For the pretty
-// aliases (/sdks, /workflows, …) it is the real underlying file, not the alias,
+// aliases (/instrument, /workflows, …) it is the real underlying file, not the alias,
 // so relative links resolve correctly.
 function navNote(notePath: string): string {
   const canonicalUrl = `${ORIGIN}${notePath}`;
@@ -51,7 +51,7 @@ const INDEX_PREAMBLE = [
   "| URL | What it loads |",
   "| --- | --- |",
   `| \`${ORIGIN}/\` | This index |`,
-  `| \`${ORIGIN}/sdks\` | SDK setup — detect the platform and install Sentry |`,
+  `| \`${ORIGIN}/instrument\` | Instrument your app — detect the platform and install Sentry |`,
   `| \`${ORIGIN}/workflows\` | Workflows — debug issues, review code, upgrade SDKs |`,
   `| \`${ORIGIN}/features\` | Features — AI monitoring, alerts, OpenTelemetry |`,
   "",
@@ -144,11 +144,17 @@ app.use(sentry(app));
 
 app.use(trimTrailingSlash({ alwaysRedirect: true }));
 app.get("/", (c) => proxyText(c, `${BASE}/SKILL_TREE.md`, { preamble: INDEX_PREAMBLE }));
-app.get("/sdks", (c) =>
-  proxyText(c, `${BASE}/skills/sentry-sdk-setup/SKILL.md`, {
-    notePath: "/sentry-sdk-setup/SKILL.md",
+app.get("/instrument", (c) =>
+  proxyText(c, `${BASE}/skills/sentry-instrument/SKILL.md`, {
+    notePath: "/sentry-instrument/SKILL.md",
   }),
 );
+// `/sdks` was the original alias for SDK setup; keep it working as a redirect to
+// the canonical `/instrument` entry point.
+app.get("/sdks", (c) => {
+  const url = new URL(c.req.url);
+  return c.redirect(`/instrument${url.search}`, 301);
+});
 app.get("/workflows", (c) =>
   proxyText(c, `${BASE}/skills/sentry-workflow/SKILL.md`, {
     notePath: "/sentry-workflow/SKILL.md",

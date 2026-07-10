@@ -7,27 +7,28 @@ Tiny proxy that gives pretty URLs to Sentry AI skills hosted on GitHub.
 Tell your AI coding assistant:
 
 ```
-Use curl to download, read and follow: https://skills.sentry.dev/sdks
+Use curl to download, read and follow: https://skills.sentry.dev/instrument
 ```
 
 **Why curl?** Skills are detailed 10–20 KB markdown files. Fetch tools (like WebFetch) often summarize them, losing critical configuration details. `curl -sL` guarantees the full content.
 
 ## Entry Points
 
-| URL                                       | What it loads                                       |
-| ----------------------------------------- | --------------------------------------------------- |
-| `skills.sentry.dev/`                      | Full skill index (SKILL_TREE.md)                    |
-| `skills.sentry.dev/sdks`                  | SDK setup — detect platform and install Sentry      |
-| `skills.sentry.dev/workflows`             | Workflows — debug issues, review code, upgrade SDKs |
-| `skills.sentry.dev/features`              | Features — AI monitoring, alerts, OpenTelemetry     |
-| `skills.sentry.dev/<skill-name>/SKILL.md` | Individual skill file                               |
+| URL                                       | What it loads                                            |
+| ----------------------------------------- | -------------------------------------------------------- |
+| `skills.sentry.dev/`                      | Full skill index (SKILL_TREE.md)                         |
+| `skills.sentry.dev/instrument`            | Instrument your app — detect platform and install Sentry |
+| `skills.sentry.dev/workflows`             | Workflows — debug issues, review code, upgrade SDKs      |
+| `skills.sentry.dev/features`              | Features — AI monitoring, alerts, OpenTelemetry          |
+| `skills.sentry.dev/<skill-name>/SKILL.md` | Individual skill file                                    |
 
 ## URL Mapping
 
 | Pretty URL                                                  | GitHub Raw URL                                            |
 | ----------------------------------------------------------- | --------------------------------------------------------- |
 | `skills.sentry.dev/`                                        | `.../main/SKILL_TREE.md`                                  |
-| `skills.sentry.dev/sdks`                                    | `.../main/skills/sentry-sdk-setup/SKILL.md`               |
+| `skills.sentry.dev/instrument`                              | `.../main/skills/sentry-instrument/SKILL.md`              |
+| `skills.sentry.dev/sdks`                                    | → `301` redirect to `/instrument`                         |
 | `skills.sentry.dev/workflows`                               | `.../main/skills/sentry-workflow/SKILL.md`                |
 | `skills.sentry.dev/features`                                | `.../main/skills/sentry-feature-setup/SKILL.md`           |
 | `skills.sentry.dev/sentry-nextjs-sdk/SKILL.md`              | `.../main/skills/sentry-nextjs-sdk/SKILL.md`              |
