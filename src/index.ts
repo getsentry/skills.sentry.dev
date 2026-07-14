@@ -6,7 +6,7 @@ import { trimTrailingSlash } from "hono/trailing-slash";
 import { getPath } from "hono/utils/url";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 
-const BASE = "https://raw.githubusercontent.com/getsentry/sentry-for-ai/refs/heads/main";
+const BASE = "https://raw.githubusercontent.com/getsentry/sentry-for-ai/refs/heads/main/src";
 const ORIGIN = "https://skills.sentry.dev";
 
 // Appended to every markdown document we serve. Skill sources use plain relative
@@ -60,8 +60,8 @@ const INDEX_PREAMBLE = [
   "",
   "Every skill links to related files with relative paths. Resolve each link against the",
   "URL you fetched it from and download it the same way with `curl -sL`. For example, from",
-  `\`${ORIGIN}/sentry-nextjs-sdk/SKILL.md\`, a link \`references/tracing.md\` resolves to`,
-  `\`${ORIGIN}/sentry-nextjs-sdk/references/tracing.md\`. Do not guess or shorten paths.`,
+  `\`${ORIGIN}/sentry-instrument/SKILL.md\`, a link \`references/sdks/nextjs/tracing.md\` resolves to`,
+  `\`${ORIGIN}/sentry-instrument/references/sdks/nextjs/tracing.md\`. Do not guess or shorten paths.`,
   "",
   "---",
   "",
