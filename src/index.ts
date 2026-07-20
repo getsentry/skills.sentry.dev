@@ -7,6 +7,8 @@ import { getPath } from "hono/utils/url";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 
 const BASE = "https://raw.githubusercontent.com/getsentry/sentry-for-ai/refs/heads/main/src";
+const LEGACY_BASE =
+  "https://raw.githubusercontent.com/getsentry/sentry-for-ai/refs/heads/main/skills-legacy";
 const ORIGIN = "https://skills.sentry.dev";
 
 // Appended to every markdown document we serve. Skill sources use plain relative
@@ -218,7 +220,7 @@ app.get("/:skill/*", (c) => {
   // A skill may still bundle its own references, so we try the skill-local path
   // first and only fall back to the shared library.
   const ref = c.req.path.match(/^\/[^/]+\/(references\/.+)$/);
-  const fallbackUrl = ref ? `${BASE}/${ref[1]}` : undefined;
+  const fallbackUrl = ref ? `${BASE}/${ref[1]}` : `${LEGACY_BASE}${c.req.path}`;
 
   return proxyText(c, url, { notePath, fallbackUrl });
 });
