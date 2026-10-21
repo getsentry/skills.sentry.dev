@@ -51,7 +51,7 @@ npm install
 npm run dev
 ```
 
-Check that every public URL still works (run it after changing routes, or against production):
+Check that every public URL still works. CI runs this on every PR and daily against production:
 
 ```bash
 node scripts/check-urls.mjs                           # local server
