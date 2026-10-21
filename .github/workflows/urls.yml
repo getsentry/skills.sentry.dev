@@ -1,0 +1,43 @@
+# Checks that every public URL still works (see scripts/check-urls.mjs).
+#
+# Skill files live in getsentry/sentry-for-ai, so a change there can break these
+# URLs without any change here. That is why this also runs every day, against
+# both a local server and production.
+
+name: URLs
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Start server
+        run: |
+          node dist/index.js &
+          for i in $(seq 30); do curl -s -o /dev/null http://localhost:3000/sdks && exit 0; sleep 1; done
+          exit 1
+      - name: Check local server
+        run: node scripts/check-urls.mjs http://localhost:3000
+      - name: Check production
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: node scripts/check-urls.mjs https://skills.sentry.dev
