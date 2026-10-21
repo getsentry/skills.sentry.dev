@@ -51,6 +51,13 @@ npm install
 npm run dev
 ```
 
+Check that every public URL still works (run it after changing routes, or against production):
+
+```bash
+node scripts/check-urls.mjs                           # local server
+node scripts/check-urls.mjs https://skills.sentry.dev # production
+```
+
 ## Docker
 
 ```bash
