@@ -14,28 +14,33 @@ Use curl to download, read and follow: https://skills.sentry.dev/instrument
 
 ## Entry Points
 
-| URL                                       | What it loads                                            |
-| ----------------------------------------- | -------------------------------------------------------- |
-| `skills.sentry.dev/`                      | Full skill index (SKILL_TREE.md)                         |
-| `skills.sentry.dev/instrument`            | Instrument your app — detect platform and install Sentry |
-| `skills.sentry.dev/workflows`             | Workflows — debug issues, review code, upgrade SDKs      |
-| `skills.sentry.dev/features`              | Features — AI monitoring, alerts, OpenTelemetry          |
-| `skills.sentry.dev/cloudflare`            | Cloudflare — full SDK setup for Workers and Pages        |
-| `skills.sentry.dev/<skill-name>/SKILL.md` | Individual skill file                                    |
+| URL                                             | What it loads                                             |
+| ----------------------------------------------- | --------------------------------------------------------- |
+| `skills.sentry.dev/`                            | Full skill index (SKILL_TREE.md)                          |
+| `skills.sentry.dev/sentry-get-started/SKILL.md` | Start here — set up a new project or find the right skill |
+| `skills.sentry.dev/instrument`                  | Instrument your app — detect platform and install Sentry  |
+| `skills.sentry.dev/<skill-name>/SKILL.md`       | Individual skill file                                     |
 
 ## URL Mapping
 
-| Pretty URL                                                              | GitHub Raw URL                                                   |
-| ----------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| `skills.sentry.dev/`                                                    | `.../main/src/SKILL_TREE.md`                                     |
-| `skills.sentry.dev/instrument`                                          | `.../main/src/skills/sentry-instrument/SKILL.md`                 |
-| `skills.sentry.dev/sdks`                                                | → `301` redirect to `/instrument`                                |
-| `skills.sentry.dev/workflows`                                           | `.../main/src/skills/sentry-workflow/SKILL.md`                   |
-| `skills.sentry.dev/features`                                            | `.../main/src/skills/sentry-feature-setup/SKILL.md`              |
-| `skills.sentry.dev/cloudflare`                                          | `.../main/src/references/sdks/cloudflare/index.md`               |
-| `skills.sentry.dev/cloudflare/<file>.md`                                | `.../main/src/references/sdks/cloudflare/<file>.md`              |
-| `skills.sentry.dev/sentry-instrument/SKILL.md`                          | `.../main/src/skills/sentry-instrument/SKILL.md`                 |
-| `skills.sentry.dev/sentry-instrument/references/sdks/nextjs/tracing.md` | `.../main/src/references/sdks/nextjs/tracing.md` (fallback path) |
+| Pretty URL                                                   | GitHub Raw URL                                        |
+| ------------------------------------------------------------ | ----------------------------------------------------- |
+| `skills.sentry.dev/`                                         | `.../main/src/SKILL_TREE.md`                          |
+| `skills.sentry.dev/instrument`                               | `.../main/src/skills/sentry-instrument/SKILL.md`      |
+| `skills.sentry.dev/sentry-instrument/SKILL.md`               | `.../main/src/skills/sentry-instrument/SKILL.md`      |
+| `skills.sentry.dev/sentry-instrument/references/sdk-docs.md` | `.../main/src/references/sdk-docs.md` (fallback path) |
+
+## Redirects
+
+Old URLs that agents still request. Each one keeps its query string.
+
+| URL                                      | `301` redirect to                                          |
+| ---------------------------------------- | ---------------------------------------------------------- |
+| `skills.sentry.dev/sdks`                 | `/instrument`                                              |
+| `skills.sentry.dev/workflows`            | `/sentry-debug-issue/SKILL.md`                             |
+| `skills.sentry.dev/features`             | `/`                                                        |
+| `skills.sentry.dev/cloudflare`           | Sentry docs Cloudflare guide (`.md`)                       |
+| `skills.sentry.dev/cloudflare/<file>.md` | Matching Sentry docs Cloudflare page (`.md`), or the guide |
 
 All paths resolve to files in [`getsentry/sentry-for-ai`](https://github.com/getsentry/sentry-for-ai).
 
@@ -44,6 +49,13 @@ All paths resolve to files in [`getsentry/sentry-for-ai`](https://github.com/get
 ```bash
 npm install
 npm run dev
+```
+
+Check that every public URL still works (run it after changing routes, or against production):
+
+```bash
+node scripts/check-urls.mjs                           # local server
+node scripts/check-urls.mjs https://skills.sentry.dev # production
 ```
 
 ## Docker
