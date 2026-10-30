@@ -51,6 +51,13 @@ npm install
 npm run dev
 ```
 
+Check that every public URL still works. CI runs this on every PR and daily against production:
+
+```bash
+node scripts/check-urls.mjs                           # local server
+node scripts/check-urls.mjs https://skills.sentry.dev # production
+```
+
 ## Docker
 
 ```bash
