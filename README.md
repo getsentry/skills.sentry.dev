@@ -32,15 +32,15 @@ Use curl to download, read and follow: https://skills.sentry.dev/instrument
 
 ## Redirects
 
-Old URLs that agents still request. Each one keeps its query string.
+Old URLs that agents still request. Each one keeps its query string and returns a
+short markdown body naming the new URL, for agents that don't follow redirects.
 
-| URL                                      | `301` redirect to                                          |
-| ---------------------------------------- | ---------------------------------------------------------- |
-| `skills.sentry.dev/sdks`                 | `/instrument`                                              |
-| `skills.sentry.dev/workflows`            | `/sentry-debug-issue/SKILL.md`                             |
-| `skills.sentry.dev/features`             | `/`                                                        |
-| `skills.sentry.dev/cloudflare`           | Sentry docs Cloudflare guide (`.md`)                       |
-| `skills.sentry.dev/cloudflare/<file>.md` | Matching Sentry docs Cloudflare page (`.md`), or the guide |
+| URL                                                        | `301` redirect to                    |
+| ---------------------------------------------------------- | ------------------------------------ |
+| `skills.sentry.dev/sdks`                                   | `/instrument`                        |
+| `skills.sentry.dev/workflows`                              | `/sentry-debug-issue/SKILL.md`       |
+| `skills.sentry.dev/features`                               | `/`                                  |
+| `skills.sentry.dev/cloudflare` and `/cloudflare/<file>.md` | Sentry docs Cloudflare guide (`.md`) |
 
 All paths resolve to files in [`getsentry/sentry-for-ai`](https://github.com/getsentry/sentry-for-ai).
 
@@ -49,13 +49,6 @@ All paths resolve to files in [`getsentry/sentry-for-ai`](https://github.com/get
 ```bash
 npm install
 npm run dev
-```
-
-Check that every public URL still works (run it after changing routes, or against production):
-
-```bash
-node scripts/check-urls.mjs                           # local server
-node scripts/check-urls.mjs https://skills.sentry.dev # production
 ```
 
 ## Docker
