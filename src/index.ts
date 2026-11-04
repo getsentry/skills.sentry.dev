@@ -10,6 +10,7 @@ const BASE = "https://raw.githubusercontent.com/getsentry/sentry-for-ai/refs/hea
 const LEGACY_BASE =
   "https://raw.githubusercontent.com/getsentry/sentry-for-ai/refs/heads/main/skills-legacy";
 const ORIGIN = "https://skills.sentry.dev";
+const CLOUDFLARE_DOCS = "https://docs.sentry.io/platforms/javascript/guides/cloudflare.md";
 
 // Appended to every markdown document we serve. Skill sources use plain relative
 // links (e.g. `references/tracing.md`, `../sentry-node-sdk/SKILL.md`) and say
@@ -18,9 +19,9 @@ const ORIGIN = "https://skills.sentry.dev";
 // has no signal that those links are fetchable. This note supplies it, and it
 // lives ONLY here so the curl instruction never leaks back into the sources.
 //
-// `notePath` is the document's own canonical path on this origin. For the pretty
-// aliases (/instrument, /workflows, …) it is the real underlying file, not the alias,
-// so relative links resolve correctly.
+// `notePath` is the document's own canonical path on this origin. For the
+// /instrument alias it is the real underlying file, not the alias, so relative
+// links resolve correctly.
 function navNote(notePath: string): string {
   const canonicalUrl = `${ORIGIN}${notePath}`;
   const dirUrl = canonicalUrl.replace(/\/[^/]*$/, "") || ORIGIN;
@@ -54,17 +55,15 @@ const INDEX_PREAMBLE = [
   "| URL | What it loads |",
   "| --- | --- |",
   `| \`${ORIGIN}/\` | This index |`,
+  `| \`${ORIGIN}/sentry-get-started/SKILL.md\` | Start here — set up a new project or find the right skill |`,
   `| \`${ORIGIN}/instrument\` | Instrument your app — detect the platform and install Sentry |`,
-  `| \`${ORIGIN}/workflows\` | Workflows — debug issues, review code, upgrade SDKs |`,
-  `| \`${ORIGIN}/features\` | Features — AI monitoring, alerts, OpenTelemetry |`,
-  `| \`${ORIGIN}/cloudflare\` | Cloudflare — full SDK setup for Workers and Pages, including Agent Tracing |`,
   "",
   "### Following Links",
   "",
   "Every skill links to related files with relative paths. Resolve each link against the",
   "URL you fetched it from and download it the same way with `curl -sL`. For example, from",
-  `\`${ORIGIN}/sentry-instrument/SKILL.md\`, a link \`references/sdks/nextjs/tracing.md\` resolves to`,
-  `\`${ORIGIN}/sentry-instrument/references/sdks/nextjs/tracing.md\`. Do not guess or shorten paths.`,
+  `\`${ORIGIN}/sentry-instrument/SKILL.md\`, a link \`references/sdk-docs.md\` resolves to`,
+  `\`${ORIGIN}/sentry-instrument/references/sdk-docs.md\`. Do not guess or shorten paths.`,
   "",
   "---",
   "",
@@ -138,6 +137,25 @@ async function proxyText(c: Context, url: string, opts: ProxyOptions = {}): Prom
   }
 }
 
+// 301 that keeps the query string and carries a short markdown body. Clients
+// that follow redirects never see the body, but an agent running plain `curl`
+// (no `-L`) would otherwise get an empty response and no hint where to go.
+// `to` is a path on this origin, or an absolute URL for external targets.
+function moved(c: Context, to: string): Response {
+  const target = new URL(to, ORIGIN);
+  // A path like `/\evil.com` parses to another host; never redirect off-origin
+  // from a path.
+  if (to.startsWith("/") && target.origin !== ORIGIN) {
+    return c.text("Bad Request", 400);
+  }
+  target.search = new URL(c.req.url).search;
+  const location = target.origin === ORIGIN ? target.pathname + target.search : target.href;
+  return c.text(`This page moved. Fetch ${target.href} instead.\n`, 301, {
+    Location: location,
+    "Content-Type": "text/markdown; charset=utf-8",
+  });
+}
+
 // Hono does not normalize double slashes in paths (https://github.com/honojs/hono/issues/3034),
 // which can lead to open redirects via protocol-relative URLs (e.g. //evil.com).
 const app = new Hono({
@@ -155,59 +173,25 @@ app.get("/instrument", (c) =>
 );
 // `/sdks` was the original alias for SDK setup; keep it working as a redirect to
 // the canonical `/instrument` entry point.
-app.get("/sdks", (c) => {
-  const url = new URL(c.req.url);
-  return c.redirect(`/instrument${url.search}`, 301);
-});
-app.get("/workflows", (c) =>
-  proxyText(c, `${BASE}/skills/sentry-workflow/SKILL.md`, {
-    notePath: "/sentry-workflow/SKILL.md",
-  }),
-);
-app.get("/features", (c) =>
-  proxyText(c, `${BASE}/skills/sentry-feature-setup/SKILL.md`, {
-    notePath: "/sentry-feature-setup/SKILL.md",
-  }),
-);
-// Direct entry point for the Cloudflare SDK reference. Unlike the other aliases
-// this targets the shared references library, not a skill. Agents resolve the
-// document's relative links (./tracing.md, ./nodejs-compat.md, …) against the
-// URL they fetched, so /cloudflare is a real namespace: /cloudflare/<file>
-// serves the matching file from references/sdks/cloudflare/. Registered before
-// the generic /:skill/* route so it wins the match.
-app.get("/cloudflare", (c) =>
-  proxyText(c, `${BASE}/references/sdks/cloudflare/index.md`, {
-    notePath: "/cloudflare/index.md",
-  }),
-);
-app.get("/cloudflare/index.md", (c) => {
-  const url = new URL(c.req.url);
-  return c.redirect(`/cloudflare${url.search}`, 301);
-});
-app.get("/cloudflare/:file{[a-z0-9-]+\\.md}", (c) =>
-  proxyText(c, `${BASE}/references/sdks/cloudflare/${c.req.param("file")}`, {
-    notePath: c.req.path,
-  }),
-);
+app.get("/sdks", (c) => moved(c, "/instrument"));
+// Retired aliases. Their skills were removed or merged in sentry-for-ai, but
+// agents still request them, so redirect each to its closest replacement.
+app.get("/workflows", (c) => moved(c, "/sentry-debug-issue/SKILL.md"));
+app.get("/features", (c) => moved(c, "/"));
+// Cloudflare setup now lives in the Sentry docs. #21 served the old reference
+// files under /cloudflare/<file>.md, so send those to the guide too. Registered
+// before the generic /:skill/* route so they win the match.
+app.get("/cloudflare", (c) => moved(c, CLOUDFLARE_DOCS));
+app.get("/cloudflare/*", (c) => moved(c, CLOUDFLARE_DOCS));
 // Skills link to the index with `../../SKILL_TREE.md`, which is right for the
 // bundled layout (skills live under skills/) but resolves to /SKILL_TREE.md here,
 // where the proxy flattens that prefix and serves the index at /. Redirect it to
 // the canonical index so those breadcrumbs resolve.
-app.get("/SKILL_TREE.md", (c) => {
-  const url = new URL(c.req.url);
-  return c.redirect(`/${url.search}`, 301);
-});
+app.get("/SKILL_TREE.md", (c) => moved(c, "/"));
 
-app.get("/skills", (c) => {
-  const url = new URL(c.req.url);
-  return c.redirect(`/${url.search}`, 301);
-});
+app.get("/skills", (c) => moved(c, "/"));
 
-app.get("/skills/*", (c) => {
-  const url = new URL(c.req.url);
-  const canonicalPath = c.req.path.slice("/skills".length) || "/";
-  return c.redirect(`${canonicalPath}${url.search}`, 301);
-});
+app.get("/skills/*", (c) => moved(c, c.req.path.slice("/skills".length) || "/"));
 
 app.get("/:skill/*", (c) => {
   const url = buildSkillUrl(c.req.path);
