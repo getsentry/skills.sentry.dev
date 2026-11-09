@@ -172,10 +172,6 @@ app.get("/instrument", (c) =>
     notePath: "/sentry-instrument/SKILL.md",
   }),
 );
-// Direct entry point for Agent Tracing (AI monitoring) setup. The document lives
-// in the shared references library; its canonical path sits under
-// /sentry-instrument/references/ so its relative links resolve through the
-// references fallback in the `/:skill/*` handler.
 app.get("/agent-tracing", (c) =>
   proxyText(c, `${BASE}/references/concepts/ai-monitoring.md`, {
     notePath: "/sentry-instrument/references/concepts/ai-monitoring.md",
