@@ -14,21 +14,24 @@ Use curl to download, read and follow: https://skills.sentry.dev/instrument
 
 ## Entry Points
 
-| URL                                             | What it loads                                             |
-| ----------------------------------------------- | --------------------------------------------------------- |
-| `skills.sentry.dev/`                            | Full skill index (SKILL_TREE.md)                          |
-| `skills.sentry.dev/sentry-get-started/SKILL.md` | Start here — set up a new project or find the right skill |
-| `skills.sentry.dev/instrument`                  | Instrument your app — detect platform and install Sentry  |
-| `skills.sentry.dev/<skill-name>/SKILL.md`       | Individual skill file                                     |
+| URL                                             | What it loads                                                          |
+| ----------------------------------------------- | ---------------------------------------------------------------------- |
+| `skills.sentry.dev/`                            | Full skill index (SKILL_TREE.md)                                       |
+| `skills.sentry.dev/sentry-get-started/SKILL.md` | Start here — set up a new project or find the right skill              |
+| `skills.sentry.dev/instrument`                  | Instrument your app — detect platform and install Sentry               |
+| `skills.sentry.dev/agent-tracing`               | Set up Agent Tracing — monitor AI agents, LLM calls, and conversations |
+| `skills.sentry.dev/<skill-name>/SKILL.md`       | Individual skill file                                                  |
 
 ## URL Mapping
 
-| Pretty URL                                                   | GitHub Raw URL                                        |
-| ------------------------------------------------------------ | ----------------------------------------------------- |
-| `skills.sentry.dev/`                                         | `.../main/src/SKILL_TREE.md`                          |
-| `skills.sentry.dev/instrument`                               | `.../main/src/skills/sentry-instrument/SKILL.md`      |
-| `skills.sentry.dev/sentry-instrument/SKILL.md`               | `.../main/src/skills/sentry-instrument/SKILL.md`      |
-| `skills.sentry.dev/sentry-instrument/references/sdk-docs.md` | `.../main/src/references/sdk-docs.md` (fallback path) |
+| Pretty URL                                                   | GitHub Raw URL                                          |
+| ------------------------------------------------------------ | ------------------------------------------------------- |
+| `skills.sentry.dev/`                                         | `.../main/src/SKILL_TREE.md`                            |
+| `skills.sentry.dev/instrument`                               | `.../main/src/skills/sentry-instrument/SKILL.md`        |
+| `skills.sentry.dev/agent-tracing`                            | `.../main/src/references/concepts/ai-monitoring.md`     |
+| `skills.sentry.dev/sentry-instrument/SKILL.md`               | `.../main/src/skills/sentry-instrument/SKILL.md`        |
+| `skills.sentry.dev/sentry-instrument/references/sdk-docs.md` | `.../main/src/references/sdk-docs.md` (fallback path)   |
+| `skills.sentry.dev/<skill-name>/<file>`                      | `.../main/skills-legacy/<skill-name>/<file>` (fallback) |
 
 ## Redirects
 
@@ -40,6 +43,8 @@ short markdown body naming the new URL, for agents that don't follow redirects.
 | `skills.sentry.dev/sdks`                                   | `/instrument`                        |
 | `skills.sentry.dev/workflows`                              | `/sentry-debug-issue/SKILL.md`       |
 | `skills.sentry.dev/features`                               | `/`                                  |
+| `skills.sentry.dev/SKILL_TREE.md`                          | `/`                                  |
+| `skills.sentry.dev/skills` and `/skills/<path>`            | `/` and `/<path>`                    |
 | `skills.sentry.dev/cloudflare` and `/cloudflare/<file>.md` | Sentry docs Cloudflare guide (`.md`) |
 
 All paths resolve to files in [`getsentry/sentry-for-ai`](https://github.com/getsentry/sentry-for-ai).
@@ -60,6 +65,7 @@ docker run -p 3000:3000 skills-sentry-dev
 
 ## Environment Variables
 
-| Variable | Default | Description       |
-| -------- | ------- | ----------------- |
-| `PORT`   | `3000`  | Port to listen on |
+| Variable     | Default | Description                                    |
+| ------------ | ------- | ---------------------------------------------- |
+| `PORT`       | `3000`  | Port to listen on                              |
+| `SENTRY_DSN` | —       | Sentry DSN for monitoring the proxy (optional) |
