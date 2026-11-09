@@ -57,6 +57,7 @@ const INDEX_PREAMBLE = [
   `| \`${ORIGIN}/\` | This index |`,
   `| \`${ORIGIN}/sentry-get-started/SKILL.md\` | Start here — set up a new project or find the right skill |`,
   `| \`${ORIGIN}/instrument\` | Instrument your app — detect the platform and install Sentry |`,
+  `| \`${ORIGIN}/agent-tracing\` | Set up Agent Tracing — monitor AI agents, LLM calls, and conversations |`,
   "",
   "### Following Links",
   "",
@@ -169,6 +170,11 @@ app.get("/", (c) => proxyText(c, `${BASE}/SKILL_TREE.md`, { preamble: INDEX_PREA
 app.get("/instrument", (c) =>
   proxyText(c, `${BASE}/skills/sentry-instrument/SKILL.md`, {
     notePath: "/sentry-instrument/SKILL.md",
+  }),
+);
+app.get("/agent-tracing", (c) =>
+  proxyText(c, `${BASE}/references/concepts/ai-monitoring.md`, {
+    notePath: "/sentry-instrument/references/concepts/ai-monitoring.md",
   }),
 );
 // `/sdks` was the original alias for SDK setup; keep it working as a redirect to
