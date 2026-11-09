@@ -57,6 +57,7 @@ const INDEX_PREAMBLE = [
   `| \`${ORIGIN}/\` | This index |`,
   `| \`${ORIGIN}/sentry-get-started/SKILL.md\` | Start here — set up a new project or find the right skill |`,
   `| \`${ORIGIN}/instrument\` | Instrument your app — detect the platform and install Sentry |`,
+  `| \`${ORIGIN}/agent-tracing\` | Set up Agent Tracing — monitor AI agents, LLM calls, and conversations |`,
   "",
   "### Following Links",
   "",
@@ -169,6 +170,15 @@ app.get("/", (c) => proxyText(c, `${BASE}/SKILL_TREE.md`, { preamble: INDEX_PREA
 app.get("/instrument", (c) =>
   proxyText(c, `${BASE}/skills/sentry-instrument/SKILL.md`, {
     notePath: "/sentry-instrument/SKILL.md",
+  }),
+);
+// Direct entry point for Agent Tracing (AI monitoring) setup. The document lives
+// in the shared references library; its canonical path sits under
+// /sentry-instrument/references/ so its relative links resolve through the
+// references fallback in the `/:skill/*` handler.
+app.get("/agent-tracing", (c) =>
+  proxyText(c, `${BASE}/references/concepts/ai-monitoring.md`, {
+    notePath: "/sentry-instrument/references/concepts/ai-monitoring.md",
   }),
 );
 // `/sdks` was the original alias for SDK setup; keep it working as a redirect to
